@@ -1,0 +1,24 @@
+databases:
+  - name: runy-coffee-db
+    plan: free
+    databaseName: runy_coffee
+    user: runy_user
+
+services:
+  - type: web
+    name: runy-coffee
+    plan: free
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: runy-coffee-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DEBUG
+        value: "False"

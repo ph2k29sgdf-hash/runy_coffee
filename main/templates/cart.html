@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+<style>
+    /* ВСТРОЕННЫЕ СТИЛИ ДЛЯ КОРЗИНЫ */
+    .cart-page-wrapper { padding: 60px 20px; background-color: #F5EFC6; }
+    .cart-container { max-width: 1200px; margin: 0 auto; }
+    .cart-title { font-family: 'Cinzel', serif; text-align: center; font-size: 3em; margin-bottom: 40px; color: #231815; }
+    .cart-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 50px; align-items: start; }
+
+    /* Левая часть (Список) */
+    .cart-items-box { background: #FFFFFF; border-radius: 12px; border: 1px solid #d6cba5; padding: 30px; }
+    .cart-item-row { display: flex; align-items: center; padding: 20px 0; border-bottom: 1px dashed #d6cba5; }
+    .cart-item-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .cart-item-img { width: 90px; height: 90px; border-radius: 8px; overflow: hidden; margin-right: 25px; flex-shrink: 0; }
+    .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .cart-item-info { flex-grow: 1; }
+    .cart-item-info h3 { font-family: 'Cinzel', serif; font-size: 1.3em; margin-bottom: 5px; color: #231815; }
+    .cart-item-desc { color: #4A2E27; font-size: 0.9em; }
+    .cart-item-qty { font-weight: 600; color: #231815; margin: 0 30px; }
+    .cart-item-price { font-weight: 700; font-size: 1.2em; color: #4D0E12; width: 100px; text-align: right; }
+    .cart-item-remove { color: #999; text-decoration: none; font-size: 1.2em; margin-left: 20px; transition: 0.3s; }
+    .cart-item-remove:hover { color: #e74c3c; }
+
+    /* Правая часть (Итого) */
+    .cart-summary-box { background: #FFFFFF; border-radius: 12px; border: 1px solid #d6cba5; padding: 40px; position: sticky; top: 100px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+    .cart-summary-box h2 { font-family: 'Cinzel', serif; font-size: 1.8em; text-align: center; margin-bottom: 30px; color: #231815; }
+    .summary-line { display: flex; justify-content: space-between; margin-bottom: 15px; color: #4A2E27; font-size: 1.05em; }
+    .summary-total-line { display: flex; justify-content: space-between; margin-top: 25px; padding-top: 25px; border-top: 2px solid #d6cba5; font-size: 1.4em; font-weight: 700; color: #231815; }
+    .summary-total-line span:last-child { color: #4D0E12; }
+    .checkout-btn { display: block; width: 100%; text-align: center; background: #4D0E12; color: #FFF; padding: 18px; border-radius: 8px; text-decoration: none; font-weight: 700; text-transform: uppercase; margin-top: 30px; transition: 0.3s; box-sizing: border-box; }
+    .checkout-btn:hover { background: #36080c; }
+    .continue-link { display: block; text-align: center; margin-top: 20px; color: #4A2E27; text-decoration: none; font-size: 0.95em; }
+    .continue-link:hover { text-decoration: underline; }
+    .empty-cart-msg { text-align: center; padding: 50px; background: #FFFFFF; border-radius: 12px; border: 1px solid #d6cba5; }
+    .empty-cart-msg p { font-size: 1.2em; color: #4A2E27; margin-bottom: 20px; }
+    .empty-cart-btn { display: inline-block; padding: 15px 30px; background: #4D0E12; color: #FFF; text-decoration: none; border-radius: 8px; font-weight: 600; }
+
+    @media (max-width: 1024px) { .cart-layout { grid-template-columns: 1fr; } .cart-summary-box { position: static; } }
+    @media (max-width: 768px) { .cart-item-row { flex-wrap: wrap; } .cart-item-qty, .cart-item-price, .cart-item-remove { margin-top: 15px; } .cart-item-qty { margin-left: 115px; } .cart-item-price { width: auto; } }
+</style>
+
+<div class="cart-page-wrapper">
+    <div class="cart-container">
+        <h1 class="cart-title">ВАША КОРЗИНА</h1>
+
+        {% if cart_items %}
+        <div class="cart-layout">
+            <!-- Левая часть: Товары -->
+            <div class="cart-items-box">
+                {% for item in cart_items %}
+                <div class="cart-item-row">
+                    <div class="cart-item-img">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=100&auto=format&fit=crop" alt="Кофе">
+                        {% endif %}
+                    </div>
+                    <div class="cart-item-info">
+                        <h3>{{ item.product.name }}</h3>
+                        <p class="cart-item-desc">{{ item.product.description }}</p>
+                    </div>
+                    <div class="cart-item-qty">{{ item.quantity }} шт.</div>
+                    <div class="cart-item-price">{{ item.item_total }} ₽</div>
+                    <a href="{% url 'remove_from_cart' item.product.id %}" class="cart-item-remove" title="Удалить">✕</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Правая часть: Итого -->
+            <div class="cart-summary-box">
+                <h2>ИТОГО</h2>
+                <div class="summary-line">
+                    <span>Товары ({{ cart_item_count }}):</span>
+                    <span>{{ total_price }} ₽</span>
+                </div>
+                <div class="summary-line">
+                    <span>Доставка:</span>
+                    <span>По тарифу</span>
+                </div>
+                <div class="summary-total-line">
+                    <span>К оплате:</span>
+                    <span>{{ total_price }} ₽</span>
+                </div>
+
+                <a href="{% url 'delivery' %}" class="checkout-btn">ОФОРМИТЬ ЗАКАЗ</a>
+                <a href="{% url 'menu' %}" class="continue-link">← Добавить еще</a>
+            </div>
+        </div>
+        {% else %}
+        <!-- Если корзина пуста -->
+        <div class="empty-cart-msg">
+            <p>В корзине пока пусто.</p>
+            <a href="{% url 'menu' %}" class="empty-cart-btn">ПЕРЕЙТИ В МЕНЮ</a>
+        </div>
+        {% endif %} <!-- ВОТ ЭТОТ ТЕГ БЫЛ ПОТЕРЯН! -->
+    </div>
+</div>
+{% endblock %} <!-- И ЭТОТ ТОЖЕ ДОЛЖЕН БЫТЬ В САМОМ КОНЦЕ -->

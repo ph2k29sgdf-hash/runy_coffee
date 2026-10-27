@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load cart_tags %}
+{% block title %}Новинки{% endblock %}
+{% block content %}
+    <h1 class="center-heading">НОВИНКИ</h1>
+    <div class="menu-grid">
+        {% for product in products %}
+        <div class="menu-card">
+            <div class="badge-new">NEW</div>
+            <div class="menu-img-box">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" width="300" height="220" loading="lazy">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=400&auto=format&fit=crop" alt="Кофе" width="300" height="220" loading="lazy">
+                {% endif %}
+            </div>
+            <div class="menu-card-content">
+                <h3>{{ product.name }}</h3>
+                <p class="menu-desc">{{ product.description }}</p>
+                <div class="menu-card-footer">
+                    <span class="menu-price">{{ product.price }} ₽</span>
+                    {% with qty=cart_dict|get_item:product.id %}
+                        {% if qty %}
+                            <div class="cart-controls">
+                                <a href="{% url 'decrease_from_cart' product.id %}" class="btn-qty">-</a>
+                                <span class="qty-count">{{ qty }}</span>
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn-qty">+</a>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'add_to_cart' product.id %}" class="btn-add-cart">+ В корзину</a>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align: center; width: 100%; color: var(--text-muted);">Новинок пока нет.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

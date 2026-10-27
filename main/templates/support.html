@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Поддержка{% endblock %}
+
+{% block content %}
+<style>
+    .support-page {
+        max-width: 1000px;
+        margin: 80px auto;
+        padding: 0 20px;
+        text-align: center;
+    }
+    .support-title {
+        font-family: 'Cinzel', serif;
+        font-size: 4em;
+        color: var(--text-main);
+        margin-bottom: 20px;
+        letter-spacing: 3px;
+    }
+    .support-subtitle {
+        font-size: 1.2em;
+        color: var(--text-muted);
+        margin-bottom: 60px;
+        line-height: 1.6;
+    }
+    .support-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .support-card {
+        background: var(--bg-card);
+        padding: 40px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .support-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        border-color: var(--accent);
+    }
+    .support-icon {
+        font-size: 30px;
+        margin-bottom: 20px;
+        color: var(--accent);
+    }
+    .support-card h3 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: var(--text-muted);
+    }
+    .support-card a {
+        font-size: 1.4em;
+        color: var(--text-main);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+    .support-card a:hover {
+        color: var(--accent);
+    }
+    @media (max-width: 768px) {
+        .support-grid { grid-template-columns: 1fr; }
+        .support-title { font-size: 2.5em; }
+    }
+</style>
+
+<div class="support-page">
+    <h1 class="support-title">СЛУЖБА ЗАБОТЫ</h1>
+    <p class="support-subtitle">Мы всегда на связи. Если у вас возникли вопросы по заказу, доставке или работе сайта — выберите удобный способ связи.</p>
+
+    <div class="support-grid">
+        <div class="support-card">
+            <div class="support-icon">📞</div>
+            <h3>Позвоните нам</h3>
+            <a href="tel:{{ support_phone }}">{{ support_phone }}</a>
+        </div>
+        <div class="support-card">
+            <div class="support-icon">✉️</div>
+            <h3>Напишите на почту</h3>
+            <a href="mailto:{{ support_email }}">{{ support_email }}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

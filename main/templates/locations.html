@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}Локации{% endblock %}
+
+{% block content %}
+<style>
+    .locations-page {
+        padding: 60px 20px;
+        background-color: #F5EFC6;
+    }
+    .locations-container {
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+    .locations-title {
+        font-family: 'Cinzel', serif;
+        text-align: center;
+        font-size: 3em;
+        margin-bottom: 15px;
+        color: #231815;
+    }
+    .locations-subtitle {
+        text-align: center;
+        color: #4A2E27;
+        margin-bottom: 50px;
+    }
+    .locations-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+    }
+    .location-card {
+        background: #FFFFFF;
+        border: 1px solid #d6cba5;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+    .location-img {
+        height: 200px;
+        background: #e8e0c5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #4A2E27;
+        font-weight: 600;
+        border-bottom: 1px solid #d6cba5;
+    }
+    .location-content {
+        padding: 25px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .location-name {
+        font-family: 'Cinzel', serif;
+        font-size: 1.4em;
+        color: #4D0E12;
+        margin-bottom: 15px;
+        text-align: center;
+        border-bottom: 1px solid #d6cba5;
+        padding-bottom: 15px;
+    }
+    .location-info p {
+        margin-bottom: 8px;
+        color: #231815;
+        font-size: 0.95em;
+    }
+    .location-operators {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px dashed #d6cba5;
+    }
+    .location-operators h4 {
+        font-size: 0.85em;
+        text-transform: uppercase;
+        color: #4A2E27;
+        margin-bottom: 8px;
+    }
+
+    /* Блок отзывов */
+    .reviews-section {
+        margin-top: 20px;
+        background: #fdfaf5;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .reviews-title {
+        font-size: 0.9em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #231815;
+    }
+    .review-item {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        font-size: 0.85em;
+    }
+    .review-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .review-stars { color: #e6a817; }
+
+    /* Форма отзыва */
+    .review-form {
+        margin-top: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .review-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #d6cba5;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 0.9em;
+    }
+    .review-submit {
+        background: #4D0E12;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .review-submit:hover { background: #36080c; }
+
+    @media (max-width: 1024px) { .locations-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { .locations-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="locations-page">
+    <div class="locations-container">
+        <h1 class="locations-title">НАШИ ЛОКАЦИИ</h1>
+        <p class="locations-subtitle">Выберите ближайшую кофейню и поделитесь впечатлениями.</p>
+
+        <div class="locations-grid">
+            {% for loc in locations %}
+            <div class="location-card">
+                <div class="location-img">Ваше фото (заглушка)</div>
+
+                <div class="location-content">
+                    <h2 class="location-name">Вставить сюда название</h2>
+
+                    <div class="location-info">
+                        <p><strong>📍 Адрес:</strong> {{ loc.address }}</p>
+                        <p><strong>🕒 Время:</strong> {{ loc.working_hours }}</p>
+                    </div>
+
+                    <div class="location-operators">
+                        <h4>Администраторы:</h4>
+                        {% for op in loc.operators.all %}
+                            <p>{{ op.name }}: <a href="tel:{{ op.phone }}">{{ op.phone }}</a></p>
+                        {% empty %}
+                            <p>Контакты временно недоступны</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- БЛОК ОТЗЫВОВ -->
+                    <div class="reviews-section">
+                        <div class="reviews-title">Отзывы:</div>
+                        {% for review in loc.reviews.all %}
+                            <div class="review-item">
+                                <strong>{{ review.name }}</strong>
+                                <span class="review-stars">{% for i in "12345"|make_list %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                                <br>
+                                <span style="color: #666;">{{ review.text }}</span>
+                            </div>
+                        {% empty %}
+                            <p style="font-size: 0.85em; color: #888;">Пока нет отзывов. Будьте первым!</p>
+                        {% endfor %}
+
+                        <!-- ФОРМА ОТЗЫВА (Отправляется прямо отсюда) -->
+                        <form method="post" class="review-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="location_id" value="{{ loc.id }}">
+                            {{ form.name }}
+                            <div style="display: flex; gap: 5px;">
+                                {{ form.rating }}
+                            </div>
+                            {{ form.text }}
+                            <button type="submit" class="review-submit">ОТПРАВИТЬ ОТЗЫВ</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; grid-column: 1 / -1; padding: 50px;">
+                <p style="color: #4A2E27; font-size: 1.2em;">Локации пока не добавлены.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
